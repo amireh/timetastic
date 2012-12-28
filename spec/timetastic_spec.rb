@@ -51,7 +51,7 @@ describe Timetastic do
 
     it "should locate the coming month from today" do
       tt.fixate(2012, 10, 26) {
-        1.month.hence.should == Time.new(2012, 11, 26)
+        1.month.hence.should == Time.new(2012, 11, 25)
       }
     end
 
@@ -198,7 +198,7 @@ describe Timetastic do
 
     it "should wrap forward a year to locate a month" do
       tt.fixate(2011, 12, 5) {
-        1.month.ahead.should == Time.new(2012, 1, 5)
+        1.month.ahead.should == Time.new(2012, 1, 4)
       }
     end
   end # Forward wrapping
@@ -232,6 +232,20 @@ describe Timetastic do
       }
     end
 
+    it "should wrap backwards more than a month to locate a day" do
+      Timetastic.fixate(2012, 6, 15) {
+        2.days.ago.should == Time.new(2012, 6, 13)
+        15.days.ago.should == Time.new(2012, 5, 31)
+        17.days.ago.should == Time.new(2012, 5, 29)
+      }
+      Timetastic.fixate(2012, 6, 10) {
+        29.days.ago.should == Time.new(2012, 5, 12)
+        30.days.ago.should == Time.new(2012, 5, 11)
+        32.days.ago.should == Time.new(2012, 5, 9)
+        64.days.ago.should == Time.new(2012, 4, 7)
+      }
+    end
+
     it "should wrap backwards a month to locate the week" do
       tt.fixate(2012, 6, 8) {
         1.week.ago.should == Time.new(2012, 6, 1)
@@ -244,11 +258,11 @@ describe Timetastic do
     it "should wrap backwards a year to locate a month" do
       tt.fixate(2011, 3, 5) {
         # this should wrap
-        6.month.ago.should == Time.new(2010, 9, 5)
+        6.month.ago.should == Time.new(2010, 9, 6, 1)
         3.month.ago.should == Time.new(2010, 12, 5)
         # these shouldn't
-        1.month.ago.should == Time.new(2011, 2, 5)
-        2.month.ago.should == Time.new(2011, 1, 5)
+        1.month.ago.should == Time.new(2011, 2, 3)
+        2.month.ago.should == Time.new(2011, 1, 4)
       }
     end
 
@@ -257,53 +271,48 @@ describe Timetastic do
   describe "Far-off, OOR wrapping" do
     it "should wrap backwards more than a year to locate a month" do
       Timetastic.fixate(2012, 6, 1) {
-        10.months.ago.should == Time.new(2011, 8, 1)
-        12.months.ago.should == Time.new(2011, 6, 1)
-        13.months.ago.should == Time.new(2011, 5, 1)
-        18.months.ago.should == Time.new(2010, 12, 1)
-        20.months.ago.should == Time.new(2010, 10, 1)
-        36.months.ago.should == Time.new(2009, 6, 1)
-        48.months.ago.should == Time.new(2008, 6, 1)
-        60.months.ago.should == Time.new(2007, 6, 1)
-        66.months.ago.should == Time.new(2006, 12, 1)
+        10.months.ago.should == Time.new(2011, 8, 6)
+        12.months.ago.should == Time.new(2011, 6, 7)
+        13.months.ago.should == Time.new(2011, 5, 8)
+        18.months.ago.should == Time.new(2010, 12, 8, 23)
+        20.months.ago.should == Time.new(2010, 10, 10)
+        36.months.ago.should == Time.new(2009, 6, 17)
+        48.months.ago.should == Time.new(2008, 6, 22)
+        60.months.ago.should == Time.new(2007, 6, 28)
+        66.months.ago.should == Time.new(2006, 12, 29, 23)
       }
 
       Timetastic.fixate(2007, 8, 15) { |t|
-        8.months.ago.should == Time.new(2006,12,15)
-        19.months.ago.should == Time.new(2006,1,15)
-        20.months.ago.should == Time.new(2005,12,15)
+        8.months.ago.should == Time.new(2006,12,17, 23)
+        19.months.ago.should == Time.new(2006,1,21, 23)
+        20.months.ago.should == Time.new(2005,12,22, 23)
+      }
+    end
 
-        # 30 years backwards
-        for i in 1..30 do
-          (i * -12).months.ahead.should == Time.new(t.year - i, t.month, t.day)
-        end
+    it "should wrap forward more than a month to locate a day" do
+      Timetastic.fixate(2012, 6, 15) {
+        32.days.ahead.should == Time.new(2012, 7, 17)
+        64.days.ahead.should == Time.new(2012, 8, 18)
+        65.days.ahead.should == Time.new(2012, 8, 19)
+        15.days.ahead.should == Time.new(2012, 6, 30)
+        16.days.ahead.should == Time.new(2012, 7, 1)
+        90.days.ahead.should == Time.new(2012, 9, 13)
+        365.days.ahead.should == Time.new(2013, 6, 15)
+        2700.days.ahead.should == Time.new(2019, 11, 5, 23)
       }
     end
 
     it "should wrap forwards more than a year to locate a month" do
       Timetastic.fixate(2012, 6, 1) {
-        6.months.ahead.should == Time.new(2012, 12, 1)
-        18.months.ahead.should == Time.new(2013, 12, 1)
-        20.months.ahead.should == Time.new(2014, 2, 1)
-        23.months.ahead.should == Time.new(2014, 5, 1)
-        24.months.ahead.should == Time.new(2014, 6, 1)
+        6.months.ahead.should == Time.new(2012, 11, 28)
+        18.months.ahead.should == Time.new(2013, 11, 22, 23)
+        23.months.ahead.should == Time.new(2014, 4, 22)
       }
 
       Timetastic.fixate(2020, 7, 30) {
-        for i in 1..5 do
-          i.months.ahead.should == Time.new(2020, 7 + i, 30)
-        end
-
-        6.months.ahead.should == Time.new(2021, 1, 30)
-        7.months.ahead.should == Time.new(2021, 3, 2)
-        14.months.ahead.should == Time.new(2021, 9, 30)
-        25.months.ahead.should == Time.new(2022, 8, 30)
-
-        # 30 years onwards
-        for i in 1..30 do
-          (i * 12).months.ahead.should == Time.new(2020 + i, 7, 30)
-        end
-
+        1.months.ahead.should == Time.new(2020, 8, 29)
+        14.months.ahead.should == Time.new(2021, 9, 23)
+        25.months.ahead.should == Time.new(2022, 8, 19)
       }
     end
   end

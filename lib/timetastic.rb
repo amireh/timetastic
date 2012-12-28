@@ -31,7 +31,11 @@ module Timetastic
     #
     # You can simply set the attribute to nil to reset the time back to Time.now
     def fixate(y, m = 1, d = 1, h = 0, mi = 0, s = 0, &block)
-      @fixed_time = Time.new(y,m,d,h,mi,s)
+      if y.is_a?(Time)
+        @fixed_time = y
+      else
+        @fixed_time = Time.new(y,m,d,h,mi,s)
+      end
       block.call(@fixed_time)
       @fixed_time = nil
     end
@@ -114,89 +118,14 @@ class Fixnum
 
     case @time_offset_domain
     when :hours
-      # TODO: OOR wrapping
-
-      if n.hour + d <= 0
-        n = 1.day.ago
-        Time.new(n.year, n.month, n.day, 24 - (d.abs - n.hour), n.min, n.sec)
-      # is it the last hour?
-      elsif n.hour + d <= 24
-        Time.new(n.year, n.month, n.day, n.hour + d, n.min, n.sec)
-      else
-        # it's some hour of the next day
-        n = 1.day.ahead
-        Time.new(n.year, n.month, n.day, n.hour + d - 24, n.min, n.sec)
-      end
-
+      Time.at(n.to_i + d * 3600)
     when :days
-      # TODO: OOR wrapping
-
-      # the #days in the current month is used to evaluate whether
-      # the target day can be located in the current, past, or next month(s)
-      nr_days = Timetastic.days_in_month(n.year, n.month)
-
-      # target day is in the last month, requires a backwards wrap
-      if n.day + d <= 0
-        # if it's YY-02-2012 then X (>YY) days ago is:
-        # [nr_days(january) - (X - YY)]
-        i = n.day
-        n = 1.month.ago
-
-        nr_days = Timetastic.days_in_month(n.year, n.month)
-        Time.new(n.year, n.month, nr_days - (d.abs - i), n.hour, n.min, n.sec)
-
-      # the day is located in this month
-      elsif n.day + d <= nr_days
-        Time.new(n.year, n.month, n.day + d, n.hour, n.min, n.sec)
-
-      # target is in the next month, requires a forward wrap
-      else
-        n = 1.month.ahead # locate the next month
-        Time.new(n.year, n.month, n.day + d - nr_days, n.hour, n.min, n.sec)
-      end
-
+      Time.at(n.to_i + d * 86400)
     when :weeks
-      # TODO: OOR wrapping
-
-      d *= 7
-      nr_days = Timetastic.days_in_month(n.year, n.month)
-
-      if n.day + d <= 0
-        i = n.day
-        n = 1.month.ago
-        nr_days = Timetastic.days_in_month(n.year, n.month)
-
-        Time.new(n.year, n.month, nr_days - (d.abs - i), n.hour, n.min, n.sec)
-      elsif n.day + d <= nr_days
-        Time.new(n.year, n.month, n.day + d, n.hour, n.min, n.sec)
-      else
-        n = 1.month.ahead
-        Time.new(n.year, n.month, n.day + d - nr_days, n.hour, n.min, n.sec)
-      end
+      Time.at(n.to_i + d * 604800)
     when :months
-      # some past year
-      if n.month + d <= 0
-        # how many years to go back?
-        nr_years_back = ((d + n.month) / 12.0).abs.floor + 1
-
-        n = nr_years_back.year.ago
-        Time.new(n.year, 12 * nr_years_back - (d.abs - n.month), n.day, n.hour, n.min, n.sec)
-
-      # current year
-      elsif n.month + d <= 12
-        Time.new(n.year, n.month + d, n.day, n.hour, n.min, n.sec)
-
-      # some future year
-      else
-        # puts "#{d} + #{n.month} => #{((d - n.month) / 12.0).ceil}"
-        # how many years ahead?
-        nr_years_ahead = ((d - n.month) / 12.0).ceil
-        nr_years_ahead = 1 if nr_years_ahead == 0
-        n = nr_years_ahead.year.ahead
-        Time.new(n.year, n.month + d - 12 * nr_years_ahead, n.day, n.hour, n.min, n.sec)
-      end
+      Time.at(n.to_i + d * 2592000)
     when :years
-      # there's no wrapping here, only a single case
       Time.new(n.year + d, n.month, n.day, n.hour, n.min, n.sec)
     end
   end
