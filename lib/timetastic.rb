@@ -17,6 +17,10 @@ module Timetastic
       Traveller.new(1, delta, relative_to)
     end
 
+    def this()
+      Traveller.new(1, 0)
+    end
+
     alias_method :coming, :next
 
     # Fixes the relative time by which all of Timetastic operations
