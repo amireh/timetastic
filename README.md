@@ -7,6 +7,10 @@ those features to any Ruby script.
 Every feature directly depends and deals with Ruby `Time` implementation. While I'm unaware of
 any gotchas or limitations, it's probably good to know.
 
+**Update**: there *used* to be logic that manually wrapped the dates and times, but as I found
+out that I could make Ruby do it automatically using `Time.at` with the dates converted to epoch
+seconds, I dropped the code I wrote because I'm pretty sure Ruby's implementation is more robust.
+
 ## Locating relative times
 
 The locators are either "past" or "future" ones, all relative to today's date. The available
@@ -90,6 +94,12 @@ Need to reach a month that's further behind than last year? It's also good:
 
 Timetastic will handle the proper wrapping of dates,
 it should never throw an Out of Range argument error or so.
+
+### Eww, you're polluting Fixnum!
+
+Yes! And I find it totally sensible to do in this case as it is a truly convenient interface
+and makes for a good read. Besides, I tried to keep it to a minimum by moving some of the
+less commonly used ops into the `Timetastic` module itself.
 
 ## Legal stuff
 
