@@ -8,6 +8,6 @@ Gem::Specification.new do |s|
   s.email       = 'ahmad@algollabs.com'
   s.files       = Dir.glob("lib/**/*.rb")
   s.homepage    = 'https://github.com/amireh/timetastic'
-
+  s.test_files  = [ 'spec/timetastic_spec.rb']
   s.add_development_dependency 'rspec'
 end
