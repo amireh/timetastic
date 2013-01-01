@@ -21,6 +21,14 @@ module Timetastic
       Traveller.new(1, 0)
     end
 
+    def days_between(b, e)
+      (e.to_i - b.to_i) / 60 / 60 / 24
+    end
+    def days_and_months_between(b, e)
+      t = Time.at(e.to_i - b.to_i)
+      [ t.day, t.month ]
+    end
+
     alias_method :coming, :next
 
     # Fixes the relative time by which all of Timetastic operations
@@ -65,7 +73,7 @@ module Timetastic
 
     def initialize(direction, distance, relative_to = nil)
       @distance = distance.to_i
-      @relative_to = relative_to
+      @relative_to = relative_to || Timetastic.now
       @direction = case direction
       when -1; :ago
       when  1; :hence
@@ -80,6 +88,12 @@ module Timetastic
     protected
 
     def relative_anchored_time(domain)
+      if domain == :months
+        if @relative_to.day < 3
+          @relative_to = Time.new(@relative_to.year, @relative_to.month, @relative_to.day + 3)
+        end
+      end
+
       t = @distance.send(domain).send(@direction, @relative_to)
 
       case domain
