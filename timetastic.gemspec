@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name        = 'timetastic'
-  s.version     = '0.1.2'
+  s.version     = '0.1.3'
   s.summary     = "Utility collection of relative date selectors similar to ActiveRecord's."
   s.description = "Pure Ruby date selection using an easy and readable interface. " +
                   "Calculation of dates accounts for wrapping across days, months, and years."
