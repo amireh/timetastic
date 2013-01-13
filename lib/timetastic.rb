@@ -24,9 +24,15 @@ module Timetastic
     def days_between(b, e)
       (e.to_i - b.to_i) / 60 / 60 / 24
     end
+
     def days_and_months_between(b, e)
+      # WARN: BUGGY! is capped @ 12 months (does not account for year wrapping)
       t = Time.at(e.to_i - b.to_i)
       [ t.day, t.month ]
+    end
+
+    def months_between(b, e)
+      (Time.at(e.to_i - b.to_i) / 2.62974e6).ceil
     end
 
     alias_method :coming, :next
