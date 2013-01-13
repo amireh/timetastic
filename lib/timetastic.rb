@@ -32,7 +32,7 @@ module Timetastic
     end
 
     def months_between(b, e)
-      (Time.at(e.to_i - b.to_i) / 2.62974e6).ceil
+      ((e.to_i - b.to_i) / 2.62974e6).ceil
     end
 
     alias_method :coming, :next
