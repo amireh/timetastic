@@ -317,4 +317,24 @@ describe Timetastic do
     end
   end
 
+  describe "Fixating" do
+    it "should fixate using a Time object" do
+      Timetastic.fixate(Time.new(2012,1,1)) {
+        1.year.ahead.should == Time.new(2013,1,1)
+      }
+    end
+
+    it "should fixate using a DateTime object" do
+      Timetastic.fixate(DateTime.new(2012,1,1)) {
+        1.year.ahead.should == Time.new(2013,1,1, 2)
+      }
+    end
+
+    it "should fixate using integers mapped to date arguments" do
+      Timetastic.fixate(2012,1,1) {
+        1.year.ahead.should == Time.new(2013,1,1)
+      }
+    end
+  end
+
 end

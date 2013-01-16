@@ -51,6 +51,8 @@ module Timetastic
     def fixate(y, m = 1, d = 1, h = 0, mi = 0, s = 0, &block)
       if y.is_a?(Time)
         @fixed_time = y
+      elsif y.respond_to?(:to_time)
+        @fixed_time = y.to_time
       else
         @fixed_time = Time.new(y,m,d,h,mi,s)
       end
