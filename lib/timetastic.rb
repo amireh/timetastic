@@ -49,15 +49,19 @@ module Timetastic
     #
     # You can simply set the attribute to nil to reset the time back to Time.now
     def fixate(y, m = 1, d = 1, h = 0, mi = 0, s = 0, &block)
-      if y.is_a?(Time)
-        @fixed_time = y
-      elsif y.respond_to?(:to_time)
-        @fixed_time = y.to_time
-      else
-        @fixed_time = Time.new(y,m,d,h,mi,s)
+      lock_time do
+        if y.is_a?(Time)
+          @fixed_time = y
+        elsif y.respond_to?(:to_time)
+          @fixed_time = y.to_time
+        else
+          @fixed_time = Time.new(y,m,d,h,mi,s)
+        end
+
+        block.call(@fixed_time)
+
+        @fixed_time = nil
       end
-      block.call(@fixed_time)
-      @fixed_time = nil
     end
 
     # Snippet that calculates the number of days in any given month
@@ -71,6 +75,15 @@ module Timetastic
     # Returns the relative time by which operations are carried out
     def now()
       @fixed_time || Time.now
+    end
+
+    private
+
+    def lock_time(&callback)
+      @fixed_time_lock ||= Mutex.new
+      @fixed_time_lock.synchronize do
+        yield if block_given?
+      end
     end
   end
 
@@ -115,9 +128,32 @@ module Timetastic
 
 end # end of Module#Timetastic
 
+module TimetasticFixnum
+  class << self
+    def time_offset_domain
+      @tod ||= {}
+    end
+  end
+
+  def time_offset_domain
+    TimetasticFixnum.time_offset_domain[self]
+  end
+
+  def set_time_offset_domain(v)
+    TimetasticFixnum.time_offset_domain[self] = v
+  end
+
+end
+
 class Fixnum
+  include TimetasticFixnum
+
   Timetastic::Domains.each do |domain|
-    define_method(domain) { @time_offset_domain = domain; self }
+    define_method(domain) {
+      set_time_offset_domain( domain )
+
+      self
+    }
 
     # an alias for the singular version of the domain
     alias_method :"#{domain[0..-2]}", domain
@@ -136,13 +172,13 @@ class Fixnum
 
   protected
 
-  attr_reader :time_offset_domain
+  # attr_reader :time_offset_domain
 
   def relative_time(coef, relative_to = nil)
     d = (coef.to_i) / (coef.to_i.abs) * self # delta
     n = relative_to || Timetastic.now
 
-    case @time_offset_domain
+    case time_offset_domain
     when :hours
       Time.at(n.to_i + d * 3600)
     when :days
