@@ -337,4 +337,47 @@ describe Timetastic do
     end
   end
 
+  context "Anchoring" do
+    before(:all) do
+      @ty = Time.now.year
+      @tm = Time.now.month
+      @td = Time.now.day
+      @t  = Timetastic.zero Time.now
+
+      Timetastic.zero_hours = true
+    end
+
+    after(:all) do
+      Timetastic.zero_hours = false
+    end
+
+    it "should anchor the yearly domain" do
+      1.year.ahead.should == Time.new(@ty+1,@tm,@td)
+      1.year.ahead.should == 1.year.ahead(@t)
+
+      for i in 0..50 do
+        i.year.ahead(i.year.ago(@t)).should == @t
+        i.year.ahead(Time.new(@ty-i,@tm,@td)).should == @t
+      end
+
+      for i in 0..50 do
+        i.year.ago(i.year.ahead(@t)).should == @t
+        i.year.ago(Time.new(@ty+i,@tm,@td)).should == @t
+      end
+    end
+
+    it "should anchor the monthly domain" do
+      1.month.ahead.should == 1.month.ahead(@t)
+      one_month_ahead = 1.month.ahead(@t)
+
+      Timetastic.fixate(@t) do
+        1.month.ahead.should == one_month_ahead
+      end
+
+      1.month.ahead(1.month.ago(@t)).should == @t
+      1.month.ago(1.month.ahead(@t)).should == @t
+    end
+
+  end
+
 end

@@ -6,6 +6,7 @@ module Timetastic
 
   class << self
     attr_accessor :fixed_time # see Timetastic#fixate() below
+    attr_accessor :zero_hours
 
     def last(delta = 1, relative_to = nil)
       Traveller.new(-1, delta, relative_to)
@@ -33,6 +34,15 @@ module Timetastic
 
     def months_between(b, e)
       ((e.to_i - b.to_i) / 2.62974e6).ceil
+    end
+
+    def zero(*args)
+      if args.length == 1
+        time = args.first
+        Time.new(time.year,time.month,time.day)
+      elsif args.length == 3
+        Time.new(*args)
+      end
     end
 
     alias_method :coming, :next
@@ -178,7 +188,7 @@ class Fixnum
     d = (coef.to_i) / (coef.to_i.abs) * self # delta
     n = relative_to || Timetastic.now
 
-    case time_offset_domain
+    t = case time_offset_domain
     when :hours
       Time.at(n.to_i + d * 3600)
     when :days
@@ -190,6 +200,8 @@ class Fixnum
     when :years
       Time.new(n.year + d, n.month, n.day, n.hour, n.min, n.sec)
     end
+
+    Timetastic.zero_hours ? Timetastic.zero(t) : t
   end
 
 end

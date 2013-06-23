@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name        = 'timetastic'
-  s.version     = '0.1.5'
+  s.version     = '0.1.6'
   s.summary     = "Utility collection of relative date selectors similar to ActiveRecord's."
   s.description = "Pure Ruby date selection using an easy and readable interface. " +
                   "Calculation of dates accounts for wrapping across days, months, and years."
@@ -8,6 +8,6 @@ Gem::Specification.new do |s|
   s.email       = 'ahmad@algollabs.com'
   s.files       = Dir.glob("lib/**/*.rb")
   s.homepage    = 'https://github.com/amireh/timetastic'
-  s.test_files  = [ 'spec/timetastic_spec.rb']
+  s.test_files  = [ 'spec/timetastic_spec.rb' ]
   s.add_development_dependency 'rspec'
 end
